@@ -1,0 +1,8 @@
+.nav{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid #eaeaea;background:#fff}
+.left{font-weight:800;font-size:20px}
+.right{display:flex;align-items:center;gap:12px}
+.btn{background:#0095f6;color:#fff;border:0;padding:8px 12px;border-radius:6px;cursor:pointer}
+.profile{display:flex;align-items:center;gap:10px}
+.profile img{width:36px;height:36px;border-radius:50%;object-fit:cover}
+.name{font-weight:600}
+.logout{background:none;border:0;color:#0095f6;cursor:pointer}

@@ -1,0 +1,81 @@
+:root{
+  --bg: #ffffff;
+  --muted: #8e8e8e;
+  --border: #dbdbdb;
+}
+
+.app{
+  min-height:100vh;
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.nav{
+  width:100%;
+  max-width:975px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 16px;
+  border-bottom:1px solid var(--border);
+  box-sizing:border-box;
+}
+.logo{font-weight:700;font-size:22px}
+.search{color:var(--muted)}
+.navIcons{color:var(--muted)}
+
+.main{
+  width:100%;
+  max-width:975px;
+  display:flex;
+  gap:28px;
+  padding:24px 16px;
+  box-sizing:border-box;
+}
+.left{flex:1;min-width:320px}
+.right{width:320px}
+
+.storiesBar{
+  display:flex;gap:12px;padding:8px 0 18px;overflow:auto;
+}
+.story{display:flex;flex-direction:column;align-items:center;width:72px}
+.story img{width:66px;height:66px;border-radius:50%;border:3px solid #ffefc7;object-fit:cover}
+.storyName{margin-top:6px;font-size:12px;color:var(--muted);text-align:center}
+
+.feed{display:flex;flex-direction:column;gap:18px}
+.post{border:1px solid var(--border);background:#fff;border-radius:4px}
+.postHeader{display:flex;justify-content:space-between;align-items:center;padding:10px}
+.userInfo{display:flex;align-items:center;gap:10px}
+.avatar{width:34px;height:34px;border-radius:50%;object-fit:cover}
+.username{font-weight:600}
+.more{color:var(--muted)}
+.postBody{padding:10px}
+.postActions{display:flex;justify-content:space-between;align-items:center;padding:8px 10px}
+.postActions button{background:none;border:0;font-size:18px;cursor:pointer}
+.likes{font-weight:600;padding:0 10px 6px}
+.caption{padding:0 10px 12px;color:#111}
+
+.profileCard{display:flex;align-items:center;gap:12px;padding:8px 0}
+.profileAvatar{width:56px;height:56px;border-radius:50%;object-fit:cover}
+.profileInfo{flex:1}
+.profileName{font-weight:700}
+.profileHandle{color:var(--muted);font-size:13px}
+.switch{background:none;border:0;color:#0095f6;font-weight:600}
+
+.suggestions{margin-top:12px}
+.suggestionsTitle{color:var(--muted);font-size:13px;margin-bottom:8px}
+.suggestionItem{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.suggestionItem img{width:38px;height:38px;border-radius:50%;object-fit:cover}
+.suggInfo{flex:1;font-size:13px;color:var(--muted)}
+.suggInfo strong{color:#111}
+.suggestionItem button{background:none;border:0;color:#0095f6;font-weight:600}
+
+.footer{color:var(--muted);padding:20px 0}
+
+@media (max-width:900px){
+  .main{padding:16px}
+  .right{display:none}
+  .nav{padding:8px 10px}
+}
