@@ -57,6 +57,9 @@
 .likes{font-weight:600;padding:0 10px 6px}
 .caption{padding:0 10px 12px;color:#111}
 
+.comments{padding:10px 10px;border-top:1px solid var(--border)}
+.comments div{font-size:14px}
+
 .profileCard{display:flex;align-items:center;gap:12px;padding:8px 0}
 .profileAvatar{width:56px;height:56px;border-radius:50%;object-fit:cover}
 .profileInfo{flex:1}

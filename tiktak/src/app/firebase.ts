@@ -209,4 +209,19 @@ export async function repostPost(postId: string, uid: string, username: string |
   return docRef.id;
 }
 
+// Comments (as subcollection under posts)
+export async function addComment(postId: string, uid: string, username: string | null, text: string) {
+  return addDoc(collection(db, "posts", postId, "comments"), {
+    uid,
+    username: username ?? null,
+    text,
+    createdAt: serverTimestamp(),
+  });
+}
+
+export function subscribeComments(postId: string, callback: (comments: any[]) => void) {
+  const q = query(collection(db, "posts", postId, "comments"), orderBy("createdAt", "asc"));
+  return onSnapshot(q, (snap) => callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }))));
+}
+
 // Storage removed; posts are text-only now

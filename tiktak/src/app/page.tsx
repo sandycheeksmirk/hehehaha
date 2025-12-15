@@ -5,7 +5,7 @@ import styles from "./page.module.css";
 import CreatePost from "../components/CreatePost";
 import { useAuth } from "../context/AuthContext";
 import { subscribeFeed, subscribeStories } from "./firebase";
-import { sendFriendRequest, subscribeIncomingRequests, acceptFriendRequest, rejectFriendRequest, subscribeOutgoingRequests, subscribeFriends, toggleLike, sharePost, repostPost } from "./firebase";
+import { sendFriendRequest, subscribeIncomingRequests, acceptFriendRequest, rejectFriendRequest, subscribeOutgoingRequests, subscribeFriends, toggleLike, sharePost, repostPost, addComment, subscribeComments } from "./firebase";
 
 const Story: React.FC<{ name: string; img?: string }> = ({ name, img }) => (
 	<div className={styles.story}>
@@ -37,6 +37,27 @@ const Post: React.FC<{ post: any }> = ({ post }) => {
 		alert('Reposted');
 	}
 
+	const [comments, setComments] = useState<any[]>([]);
+	const [commentText, setCommentText] = useState("");
+
+	useEffect(() => {
+		if (!post.id) return;
+		const unsub = subscribeComments(post.id, (c) => setComments(c));
+		return () => unsub();
+	}, [post.id]);
+
+	async function postComment() {
+		if (!user) return alert("Sign in to comment");
+		if (!commentText.trim()) return;
+		try {
+			await addComment(post.id, user.uid, user.displayName ?? user.email ?? null, commentText.trim());
+			setCommentText("");
+		} catch (err) {
+			console.error(err);
+			alert("Failed to post comment");
+		}
+	}
+
 	return (
 		<div className={styles.post}>
 			<div className={styles.postHeader}>
@@ -60,6 +81,19 @@ const Post: React.FC<{ post: any }> = ({ post }) => {
 				</div>
 			</div>
 			<div className={styles.likes}>{(likedBy.length ?? 0)} likes · {(sharedBy.length ?? 0)} shares</div>
+			<div className={styles.comments}>
+				{comments.map((c) => (
+					<div key={c.id} style={{padding:'6px 0',borderTop:'1px solid #f1f1f1'}}>
+						<strong style={{marginRight:8}}>{c.username ?? 'User'}</strong>
+						<span>{c.text}</span>
+					</div>
+				))}
+
+				<div style={{display:'flex',gap:8,marginTop:8}}>
+					<input value={commentText} onChange={(e)=>setCommentText(e.target.value)} placeholder="Add a comment..." style={{flex:1,padding:6}} />
+					<button onClick={postComment} style={{background:'#0095f6',color:'#fff',border:0,padding:'6px 10px',borderRadius:6}}>Comment</button>
+				</div>
+			</div>
 		</div>
 	);
 };
