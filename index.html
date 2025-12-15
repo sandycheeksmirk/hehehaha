@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>TikTok-like UI</title>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<main class="feed" id="feed">
+			<section class="reel" data-index="0">
+				<video class="reel-video" src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" playsinline muted loop></video>
+				<div class="overlay right-controls">
+					<button class="rc-btn">❤<span>1.2K</span></button>
+					<button class="rc-btn">💬<span>240</span></button>
+					<button class="rc-btn">↗<span>Share</span></button>
+				</div>
+				<div class="overlay bottom-info">
+					<div class="user">@creator</div>
+					<div class="caption">A short caption goes here with hashtags #demo</div>
+				</div>
+			</section>
+
+			<section class="reel" data-index="1">
+				<video class="reel-video" src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" playsinline muted loop></video>
+				<div class="overlay right-controls">
+					<button class="rc-btn">❤<span>3.4K</span></button>
+					<button class="rc-btn">💬<span>560</span></button>
+					<button class="rc-btn">↗<span>Share</span></button>
+				</div>
+				<div class="overlay bottom-info">
+					<div class="user">@another</div>
+					<div class="caption">Another caption for the next reel</div>
+				</div>
+			</section>
+
+			<section class="reel" data-index="2">
+				<video class="reel-video" src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" playsinline muted loop></video>
+				<div class="overlay right-controls">
+					<button class="rc-btn">❤<span>980</span></button>
+					<button class="rc-btn">💬<span>80</span></button>
+					<button class="rc-btn">↗<span>Share</span></button>
+				</div>
+				<div class="overlay bottom-info">
+					<div class="user">@third</div>
+					<div class="caption">Short demo reel</div>
+				</div>
+			</section>
+		</main>
+
+		<script src="script.js"></script>
+	</body>
+</html>
