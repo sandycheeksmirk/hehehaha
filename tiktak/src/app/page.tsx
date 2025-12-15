@@ -5,6 +5,7 @@ import styles from "./page.module.css";
 import CreatePost from "../components/CreatePost";
 import { useAuth } from "../context/AuthContext";
 import { subscribeFeed, subscribeStories } from "./firebase";
+import { sendFriendRequest, subscribeIncomingRequests, acceptFriendRequest, rejectFriendRequest, subscribeOutgoingRequests, subscribeFriends, toggleLike, sharePost, repostPost } from "./firebase";
 
 const Story: React.FC<{ name: string; img?: string }> = ({ name, img }) => (
 	<div className={styles.story}>
@@ -13,33 +14,63 @@ const Story: React.FC<{ name: string; img?: string }> = ({ name, img }) => (
 	</div>
 );
 
-const Post: React.FC<{ user: string; avatar?: string; caption?: string }> = ({ user, avatar, caption }) => (
-	<div className={styles.post}>
-		<div className={styles.postHeader}>
-			<div className={styles.userInfo}>
-				<img className={styles.avatar} src={avatar ?? "https://i.pravatar.cc/150"} alt={user} />
-				<div className={styles.username}>{user}</div>
+const Post: React.FC<{ post: any }> = ({ post }) => {
+	const { user } = useAuth();
+	const likedBy: string[] = post.likedBy ?? [];
+	const sharedBy: string[] = post.sharedBy ?? [];
+	const meLiked = user ? likedBy.includes(user.uid) : false;
+
+	async function onLike() {
+		if (!user) return;
+		await toggleLike(post.id, user.uid);
+	}
+
+	async function onShare() {
+		if (!user) return;
+		await sharePost(post.id, user.uid);
+		alert('Post shared');
+	}
+
+	async function onRepost() {
+		if (!user) return;
+		await repostPost(post.id, user.uid, user.displayName ?? user.email ?? null);
+		alert('Reposted');
+	}
+
+	return (
+		<div className={styles.post}>
+			<div className={styles.postHeader}>
+				<div className={styles.userInfo}>
+					<img className={styles.avatar} src={post.avatar ?? "https://i.pravatar.cc/150"} alt={post.username} />
+					<div className={styles.username}>{post.username}</div>
+				</div>
+				<div className={styles.more}>•••</div>
 			</div>
-			<div className={styles.more}>•••</div>
-		</div>
-		<div className={styles.postBody}>
-			<div className={styles.caption}><strong>{user}</strong> {caption}</div>
-		</div>
-		<div className={styles.postActions}>
-			<div className={styles.actionsLeft}>
-				<button aria-label="like">♡</button>
-				<button aria-label="comment">💬</button>
-				<button aria-label="share">✈️</button>
+			<div className={styles.postBody}>
+				<div className={styles.caption}><strong>{post.username}</strong> {post.caption}</div>
 			</div>
-			<div className={styles.actionsRight}>🔖</div>
+			<div className={styles.postActions}>
+				<div className={styles.actionsLeft}>
+					<button aria-label="like" onClick={onLike}>{meLiked ? '♥' : '♡'}</button>
+					<button aria-label="comment">💬</button>
+					<button aria-label="share" onClick={onShare}>✈️</button>
+				</div>
+				<div className={styles.actionsRight}>
+					<button onClick={onRepost}>🔁</button>
+				</div>
+			</div>
+			<div className={styles.likes}>{(likedBy.length ?? 0)} likes · {(sharedBy.length ?? 0)} shares</div>
 		</div>
-	</div>
-);
+	);
+};
 
 export default function Home() {
 	const { user } = useAuth();
 	const [stories, setStories] = useState<any[]>([]);
 	const [posts, setPosts] = useState<any[]>([]);
+	const [incoming, setIncoming] = useState<any[]>([]);
+	const [outgoing, setOutgoing] = useState<any[]>([]);
+	const [friends, setFriends] = useState<string[]>([]);
 
 	useEffect(() => {
 		if (!user) {
@@ -51,10 +82,16 @@ export default function Home() {
 		// subscribe to real collections when user is signed in
 		const unsubPosts = subscribeFeed((p) => setPosts(p));
 		const unsubStories = subscribeStories((s) => setStories(s));
+		const unsubIncoming = subscribeIncomingRequests(user.uid, (r) => setIncoming(r));
+		const unsubOutgoing = subscribeOutgoingRequests(user.uid, (r) => setOutgoing(r));
+		const unsubFriends = subscribeFriends(user.uid, (r) => setFriends(r));
 
 		return () => {
 			unsubPosts();
 			unsubStories();
+			unsubIncoming();
+			unsubOutgoing();
+			unsubFriends();
 		};
 	}, [user]);
 
@@ -80,7 +117,7 @@ export default function Home() {
 						{user ? (
 							<>
 								<CreatePost />
-								{posts.length > 0 ? posts.map((p) => <Post key={p.id} user={p.username ?? p.author ?? user.displayName ?? 'user'} avatar={p.avatar} caption={p.caption} />) : <div style={{color:'#8e8e8e'}}>No posts yet</div>}
+								{posts.length > 0 ? posts.map((p) => <Post key={p.id} post={p} />) : <div style={{color:'#8e8e8e'}}>No posts yet</div>}
 							</>
 						) : (
 							<div style={{color:'#8e8e8e'}}>Login to see posts</div>
@@ -98,9 +135,38 @@ export default function Home() {
 					</div>
 
 					<div className={styles.suggestions}>
-						<div className={styles.suggestionsTitle}>Suggestions for you</div>
+						<div className={styles.suggestionsTitle}>Incoming requests</div>
 						{user ? (
-							<div style={{color:'#8e8e8e'}}>No suggestions yet</div>
+							incoming.length > 0 ? incoming.map((r) => (
+								<div key={r.id} className={styles.suggestionItem}>
+									<div style={{flex:1}}><strong>{r.fromName ?? r.fromUid}</strong><div style={{fontSize:12,color:'#8e8e8e'}}>requested access</div></div>
+									<div style={{display:'flex',gap:6}}>
+										<button onClick={() => acceptFriendRequest(r.id)} style={{background:'#22c55e',color:'#fff',border:0,padding:'6px 8px',borderRadius:6}}>Accept</button>
+										<button onClick={() => rejectFriendRequest(r.id)} style={{background:'#ef4444',color:'#fff',border:0,padding:'6px 8px',borderRadius:6}}>Reject</button>
+									</div>
+								</div>
+							)) : <div style={{color:'#8e8e8e'}}>No requests</div>
+						) : (
+							<div style={{color:'#8e8e8e'}}>Login to see requests</div>
+						)}
+
+						<div style={{marginTop:12}} className={styles.suggestionsTitle}>People you may know</div>
+						{user ? (
+							// static examples; in a real app list would come from users collection
+							[
+								{ uid: 'uid12', name: 'friend1', img: 'https://i.pravatar.cc/150?img=12' },
+								{ uid: 'uid13', name: 'friend2', img: 'https://i.pravatar.cc/150?img=13' },
+							].map((s) => {
+								const out = outgoing.find((o) => o.toUid === s.uid);
+								const isFriend = friends.includes(s.uid);
+								return (
+									<div key={s.uid} className={styles.suggestionItem}>
+										<img src={s.img} />
+										<div className={styles.suggInfo}><strong>{s.name}</strong><div style={{fontSize:12,color:'#8e8e8e'}}>{isFriend ? 'Friend' : out ? (out.status === 'pending' ? 'Requested' : out.status) : 'Not friends'}</div></div>
+										<button disabled={!!out || isFriend} onClick={() => sendFriendRequest(user.uid, user.displayName ?? user.email ?? null, s.uid, s.name)}>{isFriend ? 'Friend' : out ? 'Requested' : 'Add Friend'}</button>
+									</div>
+								);
+							})
 						) : (
 							<div style={{color:'#8e8e8e'}}>Login to see suggestions</div>
 						)}

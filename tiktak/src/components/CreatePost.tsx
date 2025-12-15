@@ -11,6 +11,8 @@ export default function CreatePost() {
   const [error, setError] = useState<string | null>(null);
 
   if (!user) return null;
+  // `user` is guaranteed non-null past the guard above; make a typed alias for TS
+  const currentUser = user as NonNullable<typeof user>;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -22,9 +24,9 @@ export default function CreatePost() {
     }
     setLoading(true);
     try {
-      const username = user.displayName ?? user.email ?? "user";
-      const avatar = user.photoURL ?? null;
-      const uid = user.uid;
+      const username = currentUser.displayName ?? currentUser.email ?? "user";
+      const avatar = currentUser.photoURL ?? null;
+      const uid = currentUser.uid;
       await createPost({ username, avatar, caption, uid });
       setCaption("");
     } catch (err) {
