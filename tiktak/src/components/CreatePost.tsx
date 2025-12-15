@@ -16,9 +16,17 @@ export default function CreatePost() {
     e.preventDefault();
     setError(null);
     if (!caption) return setError("Caption is required");
+    if (!user) {
+      setError("Not signed in");
+      return;
+    }
     setLoading(true);
     try {
-      await createPost({ username: user.displayName ?? user.email ?? "user", avatar: user.photoURL ?? null, caption, uid: user.uid });
+      const u = user; // capture non-null user in local const to satisfy TypeScript
+      const username = u.displayName ?? u.email ?? "user";
+      const avatar = u.photoURL ?? null;
+      const uid = u.uid;
+      await createPost({ username, avatar, caption, uid });
       setCaption("");
     } catch (err) {
       setError("Failed to create post");

@@ -1,6 +1,5 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 import {
   getAuth,
   GoogleAuthProvider,
@@ -35,7 +34,19 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+
+/**
+ * Analytics is browser-only and may access `window`/cookies.
+ * Call `initAnalytics()` from client-side code if you want analytics.
+ */
+export async function initAnalytics() {
+  if (typeof window === "undefined") return null;
+  const mod = await import("firebase/analytics");
+  if (await mod.isSupported()) {
+    return mod.getAnalytics(app);
+  }
+  return null;
+}
 
 // Auth
 const auth = getAuth(app);
