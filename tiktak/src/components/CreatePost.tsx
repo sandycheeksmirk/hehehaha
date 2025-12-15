@@ -22,10 +22,9 @@ export default function CreatePost() {
     }
     setLoading(true);
     try {
-      const u = user; // capture non-null user in local const to satisfy TypeScript
-      const username = u.displayName ?? u.email ?? "user";
-      const avatar = u.photoURL ?? null;
-      const uid = u.uid;
+      const username = user.displayName ?? user.email ?? "user";
+      const avatar = user.photoURL ?? null;
+      const uid = user.uid;
       await createPost({ username, avatar, caption, uid });
       setCaption("");
     } catch (err) {
